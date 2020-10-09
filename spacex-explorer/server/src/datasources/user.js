@@ -22,9 +22,9 @@ class UserAPI extends DataSource {
       return null;
     }
 
-    const user = await this.store.users.findOrCreateUser({ where: { email }});
+    const user = await this.store.users.findOrCreate({ where: { email }});
 
-    return users?.length ? user[0] : null;
+    return user?.length ? user[0] : null;
   }
 
   bookTrips = async ({ launchIds }) => {
@@ -60,7 +60,7 @@ class UserAPI extends DataSource {
     return Boolean(this.store.trips.destroy({ where: { userId, launchId }}));
   }
 
-  getLunchIdsByUser = async () => {
+  getLaunchIdsByUser = async () => {
     const userId = this.context.user.id;
     const found = await this.store.trips.findAll({
       where: { userId },

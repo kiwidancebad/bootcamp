@@ -1,0 +1,40 @@
+{
+  "name": "spacex-explorer-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "nodemon src/index.js",
+    "start:ci": "node src/index.js",
+    "dev": "yarn start"
+  },
+  "dependencies": {
+    "apollo-datasource": "^0.7.2",
+    "apollo-datasource-rest": "^0.9.4",
+    "apollo-server": "^2.18.2",
+    "apollo-server-testing": "^2.18.2",
+    "dotenv": "^8.2.0",
+    "graphql": "^15.3.0",
+    "isemail": "^3.2.0",
+    "nodemon": "^2.0.4",
+    "sequelize": "^6.3.5",
+    "sqlite3": "^5.0.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/noe_modules/",
+      "/__utils"
+    ]
+  },
+  "devDependencies": {
+    "apollo-link": "^1.2.14",
+    "apollo-link-http": "^1.5.17",
+    "jest": "^26.5.2",
+    "nock": "^13.0.4",
+    "node-fetch": "^2.6.1"
+  }
+}

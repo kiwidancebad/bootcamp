@@ -1,55 +1,55 @@
-const LaunchAPI = require('../launch');
+const LaunchAPI = require('../launch')
 
 const mocks = {
   get: jest.fn(),
-};
+}
 
-const ds = new LaunchAPI();
-ds.get = mocks.get;
+const ds = new LaunchAPI()
+ds.get = mocks.get
 
 describe('LaunchAPI', () => {
   afterEach(() => {
-    mocks.get.mockReturnValueOnce([mockLaunchResponse]);
-  });
-  
+    mocks.get.mockReturnValueOnce([mockLaunchResponse])
+  })
+
   describe('[LaunchAPI.launchReducer]', () => {
     it('properly transforms launch', () => {
-      expect(ds.launchReducer(mockLaunchResponse)).toEqual(mockLaunch);
-    });
-  });
+      expect(ds.launchReducer(mockLaunchResponse)).toEqual(mockLaunch)
+    })
+  })
 
   describe('[LaunchAPI.getAllLaunches]', () => {
     it('looks up launches from api', async () => {
-      const res = await ds.getAllLaunches();
+      const res = await ds.getAllLaunches()
 
-      expect(res).toEqual([mockLaunch]);
-      expect(mocks.get).toBeCalledWith('launches');
-    });
-  });
+      expect(res).toEqual([mockLaunch])
+      expect(mocks.get).toBeCalledWith('launches')
+    })
+  })
 
   describe('[LaunchAPI.getLaunchById]', () => {
     it('should look up single launch from api', async () => {
-      const res = await ds.getLaunchById({ launchId: 1 });
+      const res = await ds.getLaunchById({ launchId: 1 })
 
-      expect(res).toEqual(mockLaunch);
-      expect(mocks.get).toBeCalledWith('launches', { flight_number: 1 });
-    });
-  });
+      expect(res).toEqual(mockLaunch)
+      expect(mocks.get).toBeCalledWith('launches', { flight_number: 1 })
+    })
+  })
 
   describe('[LaunchAPI.getLaunchesByIds]', () => {
     it('should call getLaunchById for each id', async () => {
-      const getLaunchById = ds.getLaunchById;
-      ds.getLaunchById = jest.fn(() => ({ id: 1 }));
+      const getLaunchById = ds.getLaunchById
+      ds.getLaunchById = jest.fn(() => ({ id: 1 }))
 
-      const res = await ds.getLaunchesByIds({ launchIds: [1, 2] });
+      const res = await ds.getLaunchesByIds({ launchIds: [1, 2] })
 
-      expect(res).toEqual([{ id: 1 }, { id: 1 }]);
-      expect(ds.getLaunchById).toHaveBeenCalledTimes(2);
-      
-      ds.getLaunchById = getLaunchById;
-    });
-  });
-});
+      expect(res).toEqual([{ id: 1 }, { id: 1 }])
+      expect(ds.getLaunchById).toHaveBeenCalledTimes(2)
+
+      ds.getLaunchById = getLaunchById
+    })
+  })
+})
 
 const mockLaunch = {
   id: 1,
@@ -65,7 +65,7 @@ const mockLaunch = {
     name: 'Falcon 1',
     type: 'Merlin A',
   },
-};
+}
 
 const mockLaunchResponse = {
   flight_number: 1,
@@ -166,4 +166,4 @@ const mockLaunchResponse = {
   details: 'Engine failure at 33 seconds and loss of vehicle',
   static_fire_date_utc: '2006-03-17T00:00:00.000Z',
   static_fire_date_unix: 1142553600,
-};
+}

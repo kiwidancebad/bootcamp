@@ -1,98 +1,101 @@
-const S3 = require('aws-sdk/clients/s3');
-const isEmail = require('isemail');
+const S3 = require('aws-sdk/clients/s3')
+const isEmail = require('isemail')
 
-const mime = require('mime');
-const { nanoid } = require('nanoid');
-const { DataSource } = require('apollo-datasource');
+const mime = require('mime')
+const { nanoid } = require('nanoid')
+const { DataSource } = require('apollo-datasource')
 
 class UserAPI extends DataSource {
   constructor({ store }) {
-    super();
-    this.store = store;
+    super()
+    this.store = store
   }
 
-  initialize = config => {
-    this.context = config.context;
+  initialize = (config) => {
+    this.context = config.context
   }
 
   findOrCreateUser = async ({ email: emailArg } = {}) => {
-    const email = this.context?.user?.email ?? emailArg;
+    const email = this.context?.user?.email ?? emailArg
 
     if (!email || !isEmail.validate(email)) {
-      return null;
+      return null
     }
 
-    const user = await this.store.users.findOrCreate({ where: { email }});
+    const user = await this.store.users.findOrCreate({ where: { email } })
 
-    return user?.length ? user[0] : null;
+    return user?.length ? user[0] : null
   }
 
   bookTrips = async ({ launchIds }) => {
-    const userId = this.context.user.id;
+    const userId = this.context.user.id
 
     if (!userId) {
-      return;
+      return
     }
 
-    let results = [];
+    let results = []
 
     for (const launchId of launchIds) {
-      const res = await this.bookTrip({ launchId });
+      const res = await this.bookTrip({ launchId })
       if (res) {
-        results.push(res);
+        results.push(res)
       }
     }
 
-    return results;
+    return results
   }
 
   bookTrip = async ({ launchId }) => {
-    const userId = this.context.user.id;
+    const userId = this.context.user.id
     const res = await this.store.trips.findOrCreate({
       where: { userId, launchId },
-    });
+    })
 
-    return res?.length ? res[0].get() : false;
+    return res?.length ? res[0].get() : false
   }
 
   cancelTrip = async ({ launchId }) => {
-    const userId = this.context.user.id;
-    return Boolean(this.store.trips.destroy({ where: { userId, launchId }}));
+    const userId = this.context.user.id
+    return Boolean(this.store.trips.destroy({ where: { userId, launchId } }))
   }
 
   getLaunchIdsByUser = async () => {
-    const userId = this.context.user.id;
+    const userId = this.context.user.id
     const found = await this.store.trips.findAll({
       where: { userId },
-    });
+    })
 
-    return found?.length 
-      ? found.map(l => l.dataValues.launchId).filter(l => Boolean(l)) : [];
+    return found?.length
+      ? found.map((l) => l.dataValues.launchId).filter((l) => Boolean(l))
+      : []
   }
 
   isBookedOnLaunch = async ({ launchId }) => {
     if (!this.context?.user) {
-      return false;
+      return false
     }
 
-    const userId = this.context.user.id;
-    const found = await this.store.trips.findAll({ where: { userId, launchId }});
+    const userId = this.context.user.id
+    const found = await this.store.trips.findAll({
+      where: { userId, launchId },
+    })
 
-    return found?.length > 0;
+    return found?.length > 0
   }
 
   uploadProfileImage = async ({ file }) => {
-    const userId = this.context?.user?.id;
+    const userId = this.context?.user?.id
     if (!userId) {
-      return;
+      return
     }
 
-    const s3 = new S3();
+    const s3 = new S3()
 
-    const { createReadStream, mimetype } = await file;
-    const filename = nanoid() + '.' + mime.getExtension(mimetype);
+    const { createReadStream, mimetype } = await file
+    const filename = nanoid() + '.' + mime.getExtension(mimetype)
 
-    const { AWS_S3_BUCKET } = process.env;
+    const { AWS_S3_BUCKET } = process.env
 
     await s3
       .upload({
@@ -102,12 +105,12 @@ class UserAPI extends DataSource {
         Key: filename,
         ContentType: mimetype,
       })
-      .promise();
+      .promise()
 
     return this.context.user.update({
-      profileImage: `https://${AWS_S3_BUCKET}.s3.us.west-2.amazonaws.com/${filename}`
-    });
+      profileImage: `https://${AWS_S3_BUCKET}.s3.us.west-2.amazonaws.com/${filename}`,
+    })
   }
 }
 
-module.exports = UserAPI;
+module.exports = UserAPI
